@@ -20,7 +20,9 @@ mongoose.connect(process.env.MONGODB_URI).then(() => console.log('[INFO] MONGODB
 app.get('/', async (req, res) => {
     let startDate = req.query?.range?.start ? req.query.range.start.toString() : "1970-01-01";
     let endDate = req.query?.range?.end ? req.query.range.end.toString() : Date.now();
+    let page = req.query.page;
     let by = req.query.by
+    let record_count_per_page = 20;
     let search = new RegExp(req.query.q, 'i')
 
     if (by == 'product') {
@@ -31,6 +33,8 @@ app.get('/', async (req, res) => {
             }
         })
             .sort({ tran_date: -1 })
+            .limit(20)
+            .skip((page - 1) * record_count_per_page)
             .exec()
             .catch(err => console.error(err))
         let revenue = 0;
@@ -49,6 +53,8 @@ app.get('/', async (req, res) => {
             }
         })
             .sort({ tran_date: -1 })
+            .limit(20)
+            .skip((page - 1) * record_count_per_page)
             .exec()
             .catch(err => res.json(err))
         let revenue = 0;
@@ -62,6 +68,8 @@ app.get('/', async (req, res) => {
         $lt: endDate
     }})
     .sort({ tran_date: -1 })
+    .limit(20)
+    .skip((page - 1) * record_count_per_page)
     .exec()
     let revenue = 0;
     result.map((item, index) => {
