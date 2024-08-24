@@ -20,7 +20,7 @@ mongoose.connect(process.env.MONGODB_URI).then(() => console.log('[INFO] MONGODB
 app.get('/', async (req, res) => {
     let startDate = req.query?.range?.start ? req.query.range.start.toString() : "1970-01-01";
     let endDate = req.query?.range?.end ? req.query.range.end.toString() : Date.now();
-    let page = req.query.page;
+    let page = req?.query?.page ? req.query.page : 1;
     let by = req.query.by
     let record_count_per_page = 20;
     let search = new RegExp(req.query.q, 'i')
@@ -63,6 +63,8 @@ app.get('/', async (req, res) => {
         })
         return res.json({ data: result, revenue: revenue, totalSales: result.length})
     }
+
+
     let result = await Transaction.find({tran_date: {
         $gte: startDate,
         $lt: endDate
@@ -77,15 +79,6 @@ app.get('/', async (req, res) => {
     })
     return res.json({ data: result, revenue: revenue, totalSales: result.length})
     
-})
-
-app.post('/aggregate', async (req, res) => {
-    let object = req.body
-    object.map((item, index) => {
-        let transaction = new Transaction(item)
-        transaction.save()
-        console.log("Saved:", index)
-    })
 })
 
 app.listen(port, () => { console.log('[INFO] SERVER STARTED') })
